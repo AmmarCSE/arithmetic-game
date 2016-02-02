@@ -63,6 +63,7 @@ function getRandomOperator(){
 }
 
 function prettyPrintExpression(expression){
+    expression = expression.replace(/(\*|\+|-|\/)/g, ' $1 ');
     return expression;
 }
 expressionArray = expressionArray.juxtapose(getRandomOperator);
