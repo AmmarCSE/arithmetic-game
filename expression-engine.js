@@ -14,3 +14,10 @@ function getRandomOperator(){
   var operators = ['+', '-', '*', '/'];
   return getRandomArrayItem(operators);
 }
+Array.prototype.juxtapose = function (seperatorFunction) {
+    for(var i = this.length - 1; i > 0; i--){
+        this.splice(i, 0,seperatorFunction());
+    }
+    return this;
+}
+expressionArray = expressionArray.juxtapose(getRandomOperator);
