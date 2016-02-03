@@ -1,5 +1,4 @@
-#!/usr/bin/env node
-
+exports = (function(){
 var level = 5;
 
 function getRandomOperand(min, max) {
@@ -55,8 +54,6 @@ Array.prototype.juxtapose = function (seperatorFunction) {
     return this;
 }
 
-var expressionArray = Array.apply(null, {length:level}).map(getRandomOperand);
-
 function getRandomOperator(){
   var operators = ['+', '-', '*', '/'];
   return getRandomArrayItem(operators);
@@ -66,9 +63,65 @@ function prettyPrintExpression(expression){
     expression = expression.replace(/(\*|\+|-|\/)/g, ' $1 ');
     return expression;
 }
-expressionArray = expressionArray.juxtapose(getRandomOperator);
-insertRandomParanthesis(expressionArray);
 
-var expression = expressionArray.join('');
-expression = prettyPrintExpression(expression);
+/*expression = expression.replace(/(\(.+\))/g, function(match, contents, offset, s) {
+  //strip out parenthesis
+  match = match.replace(/\(|\)/g, '');
+  var preRPN = match.split(' ');
+return computeExpression(preRPN);
+
+
+});
 console.log(expression);
+
+function computeExpression(expressionArray) {
+expressionArray= reduceOperator(expressionArray, '/');
+expressionArray =reduceOperator(expressionArray, '*');
+expressionArray= reduceOperator(expressionArray, '-');
+expressionArray = reduceOperator(expressionArray, '+');
+return expressionArray.pop();
+}
+
+function reduceOperator(expressionArray, operator) {
+  var operators = ['+', '-', '*', '/'];
+  var operatorType = operators.indexOf(operator);
+
+  var operatorIndex = -1;
+  while ((operatorIndex = expressionArray.indexOf(operator)) > -1) {
+    var operandOne = expressionArray[operatorIndex - 1], operandTwo = expressionArray[operatorIndex + 1], result;
+    
+    switch(operatorType){
+    	case 0:
+      	result = operandOne + operandTwo;
+        break;
+      case 1:
+      result = operandOne - operandTwo;
+        break;
+      case 2:
+      result = operandOne * operandTwo;
+        break;
+      case 3:
+      result = operandOne / operandTwo;
+        break;
+    }
+    
+    expressionArray.splice(operatorIndex - 1, 3, result);
+ 
+  }
+  return expressionArray;
+}*/
+function generateExpression(){
+    var expressionArray = Array.apply(null, {length:level}).map(getRandomOperand);
+
+    expressionArray = expressionArray.juxtapose(getRandomOperator);
+    insertRandomParanthesis(expressionArray);
+
+    var expression = expressionArray.join('');
+    expression = prettyPrintExpression(expression);
+    return expression;
+}
+console.log(123);
+return {
+    generateExpression: generateExpression
+};
+})();
