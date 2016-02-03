@@ -1,13 +1,5 @@
-exports = (function(){
-var level = 5;
-
-function getRandomOperand(min, max) {
-  //set defaults customized for our game
-  min = min || 1;
-  max = max || 100;
-
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
+module.exports = (function(){
+var expressionLevel = 3;
 
 function getRandomArrayItem(array) {
   return array[Math.floor(Math.random()*array.length)];
@@ -18,21 +10,28 @@ function getRandomOperator(){
   return getRandomArrayItem(operators);
 }
 
+function getRandomOperand(min, max) {
+  //set defaults customized for our game
+  min = min || 1;
+  max = max || 100;
+
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 function insertRandomParanthesis(expressionArray) {
     //give %50 chance of inserting paranthesis
     if(1 || getRandomOperand() > 50){
         //determine how many operands to include within the parenthesis
         var minOperands = 2;
-        var maxOperands = level - 1;
+        var maxOperands = expressionLevel - 1;
         var includedOperands = getRandomOperand(minOperands, maxOperands);
         
         //have to initialize array with even numbers for valid start indices
-        var startIndexArray = Array.apply(null, {length: level - 1}).map(function(item, index){ return index*2});
+        var startIndexArray = Array.apply(null, {length: expressionLevel - 1}).map(function(item, index){ return index*2});
         var randomStartIndex = getRandomArrayItem(startIndexArray);
  
         var endingIndexJump = randomStartIndex + ((includedOperands-1)*2)+1;
 
-        console.log(includedOperands);
         //check for and fix ending index surpassing array end
         while(endingIndexJump > expressionArray.length){
             //shift both down
@@ -47,6 +46,11 @@ function insertRandomParanthesis(expressionArray) {
     return expressionArray;
 }
 
+function prettyPrintExpression(expression){
+    expression = expression.replace(/(\*|\+|-|\/)/g, ' $1 ');
+    return expression;
+}
+
 Array.prototype.juxtapose = function (seperatorFunction) {
     for(var i = this.length - 1; i > 0; i--){
         this.splice(i, 0,seperatorFunction());
@@ -54,17 +58,8 @@ Array.prototype.juxtapose = function (seperatorFunction) {
     return this;
 }
 
-function getRandomOperator(){
-  var operators = ['+', '-', '*', '/'];
-  return getRandomArrayItem(operators);
-}
-
-function prettyPrintExpression(expression){
-    expression = expression.replace(/(\*|\+|-|\/)/g, ' $1 ');
-    return expression;
-}
-
-/*expression = expression.replace(/(\(.+\))/g, function(match, contents, offset, s) {
+/*
+expression = expression.replace(/(\(.+\))/g, function(match, contents, offset, s) {
   //strip out parenthesis
   match = match.replace(/\(|\)/g, '');
   var preRPN = match.split(' ');
@@ -73,7 +68,9 @@ return computeExpression(preRPN);
 
 });
 console.log(expression);
-
+var expressionArray = expression.split(' ');
+result = computeExpression(expressionArray);
+console.log(result);
 function computeExpression(expressionArray) {
 expressionArray= reduceOperator(expressionArray, '/');
 expressionArray =reduceOperator(expressionArray, '*');
@@ -109,18 +106,22 @@ function reduceOperator(expressionArray, operator) {
  
   }
   return expressionArray;
+}
 }*/
+function setLevel(level){
+    expressionLevel = level;
+}
 function generateExpression(){
-    var expressionArray = Array.apply(null, {length:level}).map(getRandomOperand);
+    var expressionArray = Array.apply(null, {length:expressionLevel}).map(getRandomOperand);
 
     expressionArray = expressionArray.juxtapose(getRandomOperator);
     insertRandomParanthesis(expressionArray);
 
     var expression = expressionArray.join('');
     expression = prettyPrintExpression(expression);
+
     return expression;
 }
-console.log(123);
 return {
     generateExpression: generateExpression
 };
