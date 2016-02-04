@@ -39,7 +39,7 @@ readlineInterface.on('line', function(line) {
 
 //de-couple question format so expression engine can be used for more than just the game
 function formatExpressionForQuestion(expression) {
-    return expression + ' = ?';
+    return expression + ' = ? ';
 }
 
 function checkForLevel(input) {

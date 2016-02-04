@@ -29,32 +29,56 @@ module.exports = (function() {
     }
 
     function insertRandomParanthesis(expressionArray) {
-        //give %50 chance of inserting paranthesis
-        if (1 || getRandomOperand() > 50) {
-            //determine how many operands to include within the parenthesis
-            var minOperands = 2;
-            var maxOperands = expressionLevel - 1;
-            var includedOperands = getRandomOperand(minOperands, maxOperands);
+        //give %50* chance of inserting paranthesis
+        //*not sure how mathematically true this is :-)
+        if (expressionLevel > 2 && getRandomOperand() > 50) {
+            var newExpressionArray = expressionArray.slice();
 
-            //have to initialize array with even numbers for valid start indices
-            var startIndexArray = Array.apply(null, {
-                length: expressionLevel - 1
-            }).map(function(item, index) {
-                return index * 2
-            });
-            var randomStartIndex = getRandomArrayItem(startIndexArray);
+            //bonus 2:
+            //keep doing it until inserted parenthesis become necessary
+            //only try 1000 times to avoid infinite loop!
+            var expression = newExpression = prettyPrintExpression(expressionArray);
+            var triesCount = 1000;
+            while(triesCount && evaluateExpression(newExpression) == evaluateExpression(expression)){
+                //determine how many operands to include within the parenthesis
+                var minOperands = 2;
+                var maxOperands = expressionLevel - 1;
+                var includedOperands = getRandomOperand(minOperands, maxOperands);
 
-            var endingIndexJump = randomStartIndex + ((includedOperands - 1) * 2) + 1;
+                //have to initialize array with even numbers for valid start indices
+                var startIndexArray = Array.apply(null, {
+                    length: expressionLevel - 1
+                }).map(function(item, index) {
+                    return index * 2
+                });
+                var randomStartIndex = getRandomArrayItem(startIndexArray);
 
-            //check for and fix ending index surpassing array end
-            while (endingIndexJump > expressionArray.length) {
-                //shift both down
-                randomStartIndex -= 2;
-                endingIndexJump -= 2;
+                var endingIndexJump = randomStartIndex + ((includedOperands - 1) * 2) + 1;
+
+                //check for and fix ending index surpassing array end
+                while (endingIndexJump > newExpressionArray.length) {
+                    //shift both down
+                    randomStartIndex -= 2;
+                    endingIndexJump -= 2;
+                }
+
+                //remove any prior inserted parenthesis
+                newExpressionArray = 
+                    newExpressionArray.filter(function(item) {
+                            return ['(', ')'].indexOf(item) == -1
+                        });
+
+                newExpressionArray.splice(endingIndexJump, 0, ')');
+                newExpressionArray.splice(randomStartIndex, 0, '(');
+
+                newExpression = prettyPrintExpression(newExpressionArray);
+                triesCount--;
             }
 
-            expressionArray.splice(endingIndexJump, 0, ')');
-            expressionArray.splice(randomStartIndex, 0, '(');
+            //this means we have indeed gotten necessary parenthesis
+            if(triesCount){
+                expressionArray = newExpressionArray;
+            } 
         }
 
         return expressionArray;
@@ -106,8 +130,8 @@ module.exports = (function() {
     }
 
 /*------------------------miscellaneous methods-----------------*/
-    function prettyPrintExpression(expression) {
-        //for now, just put spaces around operators
+    function prettyPrintExpression(expressionArray) {
+        var expression = expressionArray.join('');
         expression = expression.replace(/(\*|\+|-|\/)/g, ' $1 ');
         return expression;
     }
@@ -128,11 +152,10 @@ module.exports = (function() {
         expressionArray = expressionArray.juxtapose(getRandomOperator);
 
         //finally, try 'seeding' parenthesis
-        insertRandomParanthesis(expressionArray);
+        expressionArray = insertRandomParanthesis(expressionArray);
 
         //we're good to go! polish eexpression
-        var expression = expressionArray.join('');
-        expression = prettyPrintExpression(expression);
+        var expression = prettyPrintExpression(expressionArray);
 
         return expression;
     }

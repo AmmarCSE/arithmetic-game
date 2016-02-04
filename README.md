@@ -9,9 +9,13 @@ Getting Set Up
 
 - Clone this repository
 
-- Cd into the root directory and execute chmod u+x expression-engine.js
+- Cd into the root directory and execute `chmod u+x game.js`
 
 - Start the game with a command like `./game.js --level 3`
+
+- You can change the level throughout by entering '--level x'
+
+- Quit by entering 'q' or 'quit'
 
 Example Equations
 --------------
