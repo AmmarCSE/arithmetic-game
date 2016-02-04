@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
 var readline = require('readline');
-var expressionEngine = require('./expression-engine.js');
-
 var readlineInterface = readline.createInterface(process.stdin, process.stdout);
+
+var expressionEngine = require('./expression-engine.js');
 
 checkForLevel(process.argv.join(' '));
 
@@ -13,27 +13,29 @@ readlineInterface.setPrompt(formatExpressionForQuestion(expression));
 readlineInterface.prompt();
 
 readlineInterface.on('line', function(line) {
-        //give a chance for user to quit(besides Ctrl+c)
-        if (['quit', 'q'].indexOf(line) > -1){
-            readlineInterface.close();
+    //give a chance for user to quit(besides Ctrl+c)
+    if (['quit', 'q'].indexOf(line) > -1) {
+        readlineInterface.close();
+    }
+
+    //check if user wants to change level mid-game
+    if (!checkForLevel(line)) {
+        var answer = expressionEngine.evaluateExpression(expression);
+        var message = 'Incorrect, the answer is ' + answer;
+        if (answer == line) {
+            message = 'Correct!';
         }
 
-        if(!checkForLevel(line)){
-            var answer = expressionEngine.evaluateExpression(expression);
-            var message = 'Incorrect, the answer is '+ answer;
-            if(answer == line){
-                message = 'Correct!';
-            }
+        console.log(message);
+    }
 
-            console.log(message);
-        }
+    expression = expressionEngine.generateExpression();
+    readlineInterface.setPrompt(formatExpressionForQuestion(expression));
 
-        expression = expressionEngine.generateExpression();
-        readlineInterface.setPrompt(formatExpressionForQuestion(expression));
-        readlineInterface.prompt();
-    }).on('close', function() {
-        process.exit(0);
-    });
+    readlineInterface.prompt();
+}).on('close', function() {
+    process.exit(0);
+});
 
 //de-couple question format so expression engine can be used for more than just the game
 function formatExpressionForQuestion(expression) {

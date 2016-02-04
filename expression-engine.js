@@ -1,6 +1,16 @@
 module.exports = (function() {
+    //default the game level to 3
     var expressionLevel = 3;
     var operators = ['+', '-', '*', '/'];
+
+/*------------------------methods to work with expression array, some methods double as general utility methods-----------------*/
+    //insert item in every other slot
+    Array.prototype.juxtapose = function(seperatorFunction) {
+        for (var i = this.length - 1; i > 0; i--) {
+            this.splice(i, 0, seperatorFunction());
+        }
+        return this;
+    }
 
     function getRandomArrayItem(array) {
         return array[Math.floor(Math.random() * array.length)];
@@ -50,38 +60,15 @@ module.exports = (function() {
         return expressionArray;
     }
 
-    function prettyPrintExpression(expression) {
-        expression = expression.replace(/(\*|\+|-|\/)/g, ' $1 ');
-        return expression;
-    }
-
-    Array.prototype.juxtapose = function(seperatorFunction) {
-        for (var i = this.length - 1; i > 0; i--) {
-            this.splice(i, 0, seperatorFunction());
-        }
-        return this;
-    }
-
-    function evaluateExpression(expression) {
-        expression = expression.replace(/(\(.+\))/g, function(match, contents, offset, s) {
-            //strip out parenthesis
-            match = match.replace(/\(|\)/g, '');
-            var preRPN = match.split(' ');
-            return computeExpression(preRPN);
-
-
-        });
-        var expressionArray = expression.split(' ');
-        result = computeExpression(expressionArray);
-
-        return result;
-    }
-
+/*------------------------methods to calculate expression-----------------*/
     function computeExpression(expressionArray) {
+        //execute by arithmetic order of operations
         expressionArray = reduceOperator(expressionArray, '/');
         expressionArray = reduceOperator(expressionArray, '*');
         expressionArray = reduceOperator(expressionArray, '-');
         expressionArray = reduceOperator(expressionArray, '+');
+
+        //after the four stages, the reduced array contains only one item
         return expressionArray.pop();
     }
 
@@ -110,28 +97,60 @@ module.exports = (function() {
                     break;
             }
 
+            //replace the two operands and operator in the array with the result
             expressionArray.splice(operatorIndex - 1, 3, result);
 
         }
+
         return expressionArray;
     }
 
+/*------------------------miscellaneous methods-----------------*/
+    function prettyPrintExpression(expression) {
+        //for now, just put spaces around operators
+        expression = expression.replace(/(\*|\+|-|\/)/g, ' $1 ');
+        return expression;
+    }
+
+
+/*------------------------general api methods-----------------*/
     function setLevel(level) {
         expressionLevel = level;
     }
 
     function generateExpression() {
+        //first, get array of the operands
         var expressionArray = Array.apply(null, {
             length: expressionLevel
         }).map(getRandomOperand);
 
+        //now, insert operators using callback
         expressionArray = expressionArray.juxtapose(getRandomOperator);
+
+        //finally, try 'seeding' parenthesis
         insertRandomParanthesis(expressionArray);
 
+        //we're good to go! polish eexpression
         var expression = expressionArray.join('');
         expression = prettyPrintExpression(expression);
 
         return expression;
+    }
+
+    function evaluateExpression(expression) {
+        //first, reduce whats inside parenthesis
+        expression = expression.replace(/(\(.+\))/g, function(match, contents, offset, s) {
+            //strip out parenthesis
+            match = match.replace(/\(|\)/g, '');
+
+            var subExpressionArray = match.split(' ');
+            return computeExpression(subExpressionArray);
+        });
+
+        var expressionArray = expression.split(' ');
+        result = computeExpression(expressionArray);
+
+        return result;
     }
 
     return {
